@@ -44,7 +44,7 @@ On peut lancer un container et partager le volume de l'hôte avec ce dernier. Ai
 docker run -it -v $(pwd):/data python bash
 ```
 
-Bien vérifier que le dossier dans lequel vous travailler est bien par docker comme pouvant être montable (à configurer dans docker).
+Bien vérifier que le dossier dans lequel vous travaillez est bien vu par docker comme pouvant être montable (à configurer dans docker).
 Sur windows, la syntaxe `$(pwd)` qui ne fait rien d'autre qu'avoir le path courant peut ne pas fonctionner en fonction de ce que vous utilisez (Powershell, cmd, git bash...). L'adapter en fonction.
 
 Ce container ainsi lancé nous permet de :
