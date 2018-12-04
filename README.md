@@ -66,7 +66,7 @@ docker run -it -v $(pwd):/data -w /data python bash
 4) faire en sorte que ce script puisse être appelé ainsi :
 
 ```bash
-slackSender.py "slack.com/xxxxxxxxxxx/yyyyyy" "Here is my message"
+python slackSender.py "slack.com/xxxxxxxxxxx/yyyyyy" "Here is my message"
 ```
 
 et donc que le webhook et le message soient donnés en arguments.
