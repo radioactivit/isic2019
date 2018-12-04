@@ -10,7 +10,7 @@ Chaque partie dans la suite s'accompagnera d'un commit (et pourquoi pas de commi
 ## Ecrire avec Postman sur Slack
 
 Slack est un outil de communication où on peut créer des workspaces.
-Un workspace comporte un certain nombre de membre.
+Un workspace comporte un certain nombre de membres.
 Chaque membre est invité via une adresse mail.
 
 Ce qui a fait le succès de Slack c'est que :
