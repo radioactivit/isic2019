@@ -1,5 +1,15 @@
 # Travaux pratiques
 
+## Rappels au sujet des containers
+
+Un container a ses propres ports et sa propre adresse IP
+Un container peut appartenir à un réseau de containers
+On peut lister les réseaux de containers avec la commande docker network ls
+Chaque container dans un réseau de containers a sa propre adresse IP
+Un container peut contacter un autre container uniquement via des ports, en TCP ou en UDP
+La machine hôte a sa propre adresse IP
+La machine hôte ne peut contacter des containers depuis son localhost à elle que si les ports ont été publiés, mappés ou bindés : ces notions sont similaires
+
 ## Cloner ce repository
 
 Utiliser votre client git préféré pour cloner ce repository.
@@ -119,3 +129,92 @@ docker run -it -p80:80 {{yourDockerUsername}}/httpsenderservice
 ```
 
 On veut que sur le port 80 de notre hôte, on puisse communiquer avec le service.
+
+## Et la même chose avec Java Spring Boot ?
+
+### Documentation de base :
+
+https://spring.io/guides/gs/spring-boot-docker/
+
+### Notre adaptation
+
+1. `git clone https://github.com/spring-guides/gs-spring-boot.git`
+2. se rendre dans le dossier `gs-spring-boot`
+3. `docker run -it -v \$(pwd)/initial:/data -w /data -p 8090:8090 gradle bash`
+
+Avec cette commande, on lance un container où se trouvera :
+
+- le JDK Java 1.8
+- gradle(w)
+
+On a simplement à y lancer cette commande :
+
+```
+./gradlew build && java -jar build/libs/gs-spring-boot-0.1.0.jar --server.port=8090
+```
+
+C'est la commande de base indiquée sur la documentation.
+Mais :
+
+- nous n'avons pas installé java ni gradle sur notre machine, tout est dans le container.
+- nous avons changé le port par défaut du serveur sous-jacent qui est lancé. Nous avons mis 8090, mais on pourrait mettre ce que l'on désire, ça indique juste qu'on sait le manipuler
+
+On n'a pas besoin de préciser des choses autour du 0.0.0.0 ou 127.0.0.1 ici, on est déjà bindé sur 0.0.0.0.
+
+Les deux décrivant l'application hello world sont dans : src/main/java/hello
+
+4. Rajout de nos fonctionnalités (HTTP POST endpoint avec une slack url et du texte)
+
+Si on veut rajouter notre petite fonctionnalité, on doit rajouter deux éléments dans la partie dependencies dans le build.gradle :
+
+    dependencies {
+        compile('com.mashape.unirest:unirest-java:1.3.27')
+        compile("org.json:json:20171018")
+        compile("org.springframework.boot:spring-boot-starter-web")
+        testCompile("junit:junit")
+    }
+
+De quoi parser des chaînes de caractères représentant des JSON et de quoi réaliser des requêtes HTTP (Unirest).
+
+5. Modifier (un peu) notre controller
+
+Evidemment, ce n'est pas hyper satisfaisant, on ne doit jamais faire : `"{\"text\":\""+ text + "\"}"`. Et aucune gestion des exceptions (...)
+
+Mais ce n'est pas le sujet du jour.
+
+```java
+package hello;
+
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.json.*;
+
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.HttpResponse;
+
+@RestController
+public class HelloController {
+
+    @RequestMapping("/")
+    public String index() {
+        return "Greetings from Spring Boot!";
+    }
+
+    @PostMapping("/slackSend")
+    public String slackSend(@RequestBody String givenInput) throws Exception {
+        JSONObject obj = new JSONObject(givenInput);
+        String text = obj.getString("text");
+        String slackWebhook = obj.getString("slackWebhook");
+
+        HttpResponse<String> response = Unirest.post(slackWebhook)
+  .header("Content-type", "application/json")
+  .body("{\"text\":\""+ text + "\"}")
+  .asString();
+
+        return "Greetings slackSend from Spring Boot!" + text + "//" + slackWebhook + "//" + givenInput;
+    }
+
+}
+```
