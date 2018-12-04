@@ -26,7 +26,7 @@ Ce raw body doit être une chaîne de caractères représentant un json valide.
 Ce json doit respecter un format que Slack impose.
 
 1. Créer un channel Slack public correspondant à la concaténation de son prenom et de son nom
-2. Se renseigner pour faire en sorte de créer ce fameux Webhoob
+2. Se renseigner pour faire en sorte de créer ce fameux Webhook
 3. Utiliser Postman pour écrire dans Slack le message de votre choix
 
 ## Créer un script Python3 permettant d'écrire dans Slack
